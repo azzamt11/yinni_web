@@ -50,13 +50,18 @@ function SignIn() {
     setLoading(true);
     try {
         await new Promise(resolve => setTimeout(resolve, 1200));
-        const res = await axios.post(`${API_BASE_URL}/v1/auth/sign-in`, { email, password });
+        const res = await axios.post(
+          `${API_BASE_URL}/v1/auth/sign-in`,
+          { email, password }
+        );
 
-        const { data } = res.data; 
-        console.log(`data = ${data}`)
-        const token = data?.accessToken;
+        console.log("res.data =", res.data);
 
-        if (!token) {
+        const token = res.data?.accessToken;
+        const user = res.data?.user;
+
+        if (!token || !user) {
+            console.log("STEP 3: Invalid response from server - missing token or user");
             alert("Invalid response from server");
             setLoading(false);
             return;
