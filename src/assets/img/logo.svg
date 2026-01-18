@@ -1,0 +1,19 @@
+<svg width="400" height="400" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="400" fill="white"/>
+  
+  <defs>
+    <linearGradient id="lightBlueGrad" x1="280" y1="50" x2="180" y2="350" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6BB5FF"/>
+      <stop offset="100%" stop-color="#1E62B0"/>
+    </linearGradient>
+    
+    <linearGradient id="darkBlueGrad" x1="150" y1="80" x2="200" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0066CC"/>
+      <stop offset="100%" stop-color="#003366"/>
+    </linearGradient>
+  </defs>
+
+  <path d="M100 80 C100 80 180 80 230 150 L180 340 L100 80 Z" fill="url(#darkBlueGrad)" />
+
+  <path d="M300 50 C280 40 230 80 200 180 L140 340 L230 340 L300 50 Z" fill="url(#lightBlueGrad)" />
+</svg>
