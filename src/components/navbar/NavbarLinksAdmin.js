@@ -278,7 +278,7 @@ export default function HeaderLinks(props) {
               fontWeight="700"
               color={textColor}
             >
-              👋&nbsp; Hey, {hasRole(["ADMIN", "SUPERADMIN"]) ? getStoredUser().name : ""}
+              👋&nbsp; Hey, {getStoredUser().name}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
@@ -298,7 +298,7 @@ export default function HeaderLinks(props) {
             >
               <Text fontSize="sm">Newsletter Settings</Text>
             </MenuItem>
-            { hasRole(['ADMIN', 'SUPERADMIN', 'USER']) ? <MenuItem
+            <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
               color="red.400"
@@ -307,7 +307,7 @@ export default function HeaderLinks(props) {
               onClick={handleLogout}
             >
               <Text fontSize="sm">Log out</Text>
-            </MenuItem> : null}
+            </MenuItem>
           </Flex>
         </MenuList>
       </Menu>

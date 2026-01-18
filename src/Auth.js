@@ -78,9 +78,9 @@ export function getUserFromToken() {
   if (!p) return getStoredUser();
   // common fields: sub, name, role, email — adjust depending on your JWT claims
   return {
-    id: p.sub || p.user_id || null,
-    name: p.name || p.username || null,
-    role: p.role || p.roles || (p.role ? p.role : null),
+    id: p.sub || p.id || null,
+    name: p.name,
+    role: "USER",
     ...p,
   };
 }

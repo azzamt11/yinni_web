@@ -30,6 +30,7 @@ import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import { FaEthereum } from 'react-icons/fa';
 import routes from 'routes';
 export default function HeaderLinks(props) {
+  const user = getStoredUser();
   const { secondary } = props;
   const { colorMode, toggleColorMode } = useColorMode();
 
@@ -153,7 +154,7 @@ export default function HeaderLinks(props) {
               borderRadius="8px"
               mb="10px"
             >
-              <ItemContent info="Yinni Dashboard PRO" />
+              <ItemContent info="Bin Mahfudz Dashboard PRO" />
             </MenuItem>
             <MenuItem
               _hover={{ bg: 'none' }}
@@ -194,7 +195,7 @@ export default function HeaderLinks(props) {
           <Flex flexDirection="column">
             <Link w="100%" href="https://horizon-ui.com/pro">
               <Button w="100%" h="44px" mb="10px" variant="brand">
-                Buy Yinni PRO
+                Buy Bin Mahfudz PRO
               </Button>
             </Link>
             <Link
@@ -253,8 +254,8 @@ export default function HeaderLinks(props) {
           <Avatar
             _hover={{ cursor: 'pointer' }}
             color="white"
-            name={hasRole(["USER"]) ? getStoredUser().name : ""}
-            bg={hasRole(["USER"]) ? "#11047A" : '#CCCCCC'}
+            name={user?.name || ""}
+            bg={user ? "#11047A" : "#CCCCCC"}
             size="sm"
             w="40px"
             h="40px"
@@ -280,7 +281,7 @@ export default function HeaderLinks(props) {
               fontWeight="700"
               color={textColor}
             >
-              👋&nbsp; Hey, {hasRole(["USER"]) ? getStoredUser().name : ""}
+              👋 Hey, {user?.name || "Guest"}
             </Text>
           </Flex>
           <Flex flexDirection="column" p="10px">
@@ -300,7 +301,7 @@ export default function HeaderLinks(props) {
             >
               <Text fontSize="sm">Newsletter Settings</Text>
             </MenuItem>
-            { hasRole(['ADMIN', 'SUPERADMIN', 'USER']) ? <MenuItem
+            {user && <MenuItem
               _hover={{ bg: 'none' }}
               _focus={{ bg: 'none' }}
               color="red.400"
@@ -309,7 +310,7 @@ export default function HeaderLinks(props) {
               onClick={handleLogout}
             >
               <Text fontSize="sm">Log out</Text>
-            </MenuItem> : null}
+            </MenuItem>}
           </Flex>
         </MenuList>
       </Menu>
