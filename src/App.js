@@ -1,9 +1,7 @@
 import './assets/css/App.css';
-import ProtectedRoute from './ProtectedRoute';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import React, { useState, useEffect, CSSProperties } from 'react';
 import AuthLayout from './layouts/auth';
-import UserLayout from './layouts/user';
 import HomeLayout from './layouts/home';
 import {
   ChakraProvider,
@@ -115,22 +113,6 @@ export default function Main() {
       <Routes>
         <Route path="auth/*" element={<AuthLayout />} />
         <Route path="home/*" element={<HomeLayout />} />
-        {/* <Route
-          path="admin/*"
-          element={
-            <ProtectedRoute roles={["ADMIN", "SUPERADMIN"]}>
-              <AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />
-            </ProtectedRoute>
-          }
-        /> */}
-        <Route
-          path="user/*"
-          element={
-            <ProtectedRoute roles={["USER"]}>
-              <UserLayout theme={currentTheme} setTheme={setCurrentTheme} />
-            </ProtectedRoute>
-          }
-        />
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </ChakraProvider>
