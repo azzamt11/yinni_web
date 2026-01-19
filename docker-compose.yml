@@ -5,7 +5,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: yinni-web
+    container_name: horizon-ui-chakra
+    ports:
+      - "3000:80" # Maps your computer's port 3000 to the container's port 80
+    restart: always
+
+  yinni-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: main
     ports:
       - "3000:80" # Maps your computer's port 3000 to the container's port 80
     restart: always
