@@ -6,19 +6,12 @@ import HomeLayout from './layouts/home';
 import {
   ChakraProvider,
   Box,
-  Text,
   Flex,
   Image,  
   keyframes    
 } from '@chakra-ui/react';
 import initialTheme from './theme/theme';
 import logo from './assets/img/logo.svg';
-
-
-const logout = () => {
-  localStorage.removeItem("auth");
-  window.location.href = "/auth/sign-in";
-};
 
 // --- 2. Loading Splash Screen Component (Three Dots Loader) ---
 function LoadingScreen() {
@@ -84,7 +77,7 @@ function LoadingScreen() {
 // --- 3. Main Component (Unchanged logic) ---
 export default function Main() {
   const [loading, setLoading] = useState(true); 
-  const [currentTheme, setCurrentTheme] = useState(initialTheme);
+  const [currentTheme, _] = useState(initialTheme);
   
   useEffect(() => {
     document.body.style.overflow = 'hidden';
