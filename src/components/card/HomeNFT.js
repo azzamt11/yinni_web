@@ -136,7 +136,7 @@ export default function HomeNFT(props) {
             }}
             mt='25px'>
             <Text fontWeight='500' fontSize='15px' color={textColorBid}>
-              {`Rp. ${formatNumberString(currentbid)}`}
+              {`$1 ${formatNumberString(currentbid)}`}
             </Text>
             <Flex align='center' direction='row'>
               <Button

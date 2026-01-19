@@ -4,7 +4,8 @@ import Card from "components/card/Card.js";
 import React from "react";
 
 export default function ProfileBanner(props) {
-  const { banner, avatar, name, job, posts, followers, following } = props;
+  const { banner, avatar, name, job } = props;
+  
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = "gray.400";
@@ -12,23 +13,38 @@ export default function ProfileBanner(props) {
     "white !important",
     "#111C44 !important"
   );
+  const avatarBg = useColorModeValue("brand.500", "brand.400");
+
+  // Helper to extract exactly 2 initials, ignoring "Welcome, "
+  const getInitials = (fullName) => {
+    if (!fullName) return "";
+    
+    // Remove "Welcome, " if it exists to get the actual name
+    const actualName = fullName.replace(/Welcome, /i, "").trim();
+    const parts = actualName.split(" ");
+    
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return actualName.substring(0, 2).toUpperCase();
+  };
+
   return (
-    <Card mb={{ base: "0px", lg: "20px" }} align='center'>
-      <Box
-        bg={`url(${banner})`}
-        bgSize='cover'
-        borderRadius='16px'
-        h='131px'
-        w='100%'
-      />
+    <Card mb={{ base: "0px", lg: "20px" }} align='center' p='20px'>
       <Avatar
         mx='auto'
-        src={avatar}
+        // Pass the 2-letter result to the name prop
+        name={getInitials(name)}
+        // Remove 'src={avatar}' so the initials show up
         h='87px'
         w='87px'
-        mt='-43px'
+        mt='20px'
+        fontSize={'25px'}
         border='4px solid'
         borderColor={borderColor}
+        bg={avatarBg}
+        color='white'
+        fontWeight='bold'
       />
       <Text color={textColorPrimary} fontWeight='bold' fontSize='xl' mt='10px'>
         {name}
@@ -36,32 +52,6 @@ export default function ProfileBanner(props) {
       <Text color={textColorSecondary} fontSize='sm'>
         {job}
       </Text>
-      <Flex w='max-content' mx='auto' mt='26px'>
-        <Flex mx='auto' me='60px' align='center' direction='column'>
-          <Text color={textColorPrimary} fontSize='2xl' fontWeight='700'>
-            {posts}
-          </Text>
-          <Text color={textColorSecondary} fontSize='sm' fontWeight='400'>
-            Posts
-          </Text>
-        </Flex>
-        <Flex mx='auto' me='60px' align='center' direction='column'>
-          <Text color={textColorPrimary} fontSize='2xl' fontWeight='700'>
-            {followers}
-          </Text>
-          <Text color={textColorSecondary} fontSize='sm' fontWeight='400'>
-            Followers
-          </Text>
-        </Flex>
-        <Flex mx='auto' align='center' direction='column'>
-          <Text color={textColorPrimary} fontSize='2xl' fontWeight='700'>
-            {following}
-          </Text>
-          <Text color={textColorSecondary} fontSize='sm' fontWeight='400'>
-            Following
-          </Text>
-        </Flex>
-      </Flex>
     </Card>
   );
 }

@@ -131,10 +131,10 @@ export default function NFT(props) {
             }}
             mt='25px'>
             <Text fontWeight='500' fontSize='15px' color={textColorBid}>
-              {`Rp. ${formatNumberString(currentbid)}`}
+              {`$ ${formatNumberString(currentbid)}`}
             </Text>
             <Flex align='center' direction='row'>
-              <Button
+              {/* <Button
                 variant='darkBrand'
                 color='white'
                 fontSize='sm'
@@ -156,7 +156,7 @@ export default function NFT(props) {
                 onClick={onDelete}
                 py='5px'>
                 Hapus
-              </Button>
+              </Button> */}
             </Flex>
           </Flex>
         </Flex>

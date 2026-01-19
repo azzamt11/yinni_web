@@ -3,10 +3,8 @@ import ProtectedRoute from './ProtectedRoute';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import React, { useState, useEffect, CSSProperties } from 'react';
 import AuthLayout from './layouts/auth';
-import AdminLayout from './layouts/admin';
 import UserLayout from './layouts/user';
 import HomeLayout from './layouts/home';
-import DetailLayout from './layouts/detail';
 import {
   ChakraProvider,
   Box,
@@ -130,14 +128,6 @@ export default function Main() {
           element={
             <ProtectedRoute roles={["USER"]}>
               <UserLayout theme={currentTheme} setTheme={setCurrentTheme} />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="detail/*"
-          element={
-            <ProtectedRoute roles={["USER"]}>
-              <DetailLayout theme={currentTheme} setTheme={setCurrentTheme} />
             </ProtectedRoute>
           }
         />

@@ -160,8 +160,8 @@ export default function HomeLayout(props) {
             transitionProperty="top, bottom, width"
             transitionTimingFunction="linear, linear, ease"
           >
-            <Portal>
-              {/* <Box>
+            {/* <Portal>
+              <Box>
                 <Navbar
                   onOpen={onOpen}
                   logoText={'Yinni Dashboard PRO'}
@@ -172,8 +172,8 @@ export default function HomeLayout(props) {
                   fixed={fixed}
                   {...rest}
                 />
-              </Box> */}
-            </Portal>
+              </Box>
+            </Portal> */}
 
             {getRoute() ? (
               <Box

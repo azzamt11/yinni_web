@@ -18,7 +18,7 @@ import {
 import { ItemContent } from 'components/menu/ItemContent';
 import { SearchBar } from 'components/navbar/searchBar/SearchBar';
 import { SidebarResponsive } from 'components/sidebar/Sidebar';
-import { clearAuth } from 'Auth'; // path might differ in your project
+import { clearAuth } from 'Auth';
 import { useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -28,7 +28,7 @@ import navImage from 'assets/img/layout/Navbar.png';
 import { MdNotificationsNone, MdInfoOutline } from 'react-icons/md';
 import { IoMdMoon, IoMdSunny } from 'react-icons/io';
 import { FaEthereum } from 'react-icons/fa';
-import routes from 'routes';
+import homeRoutes from 'homeRoutes';
 export default function HeaderLinks(props) {
   const user = getStoredUser();
   const { secondary } = props;
@@ -65,7 +65,7 @@ export default function HeaderLinks(props) {
       borderRadius="30px"
       boxShadow={shadow}
     >
-      <SearchBar
+      {/* <SearchBar
         mb={() => {
           if (secondary) {
             return { base: '10px', md: 'unset' };
@@ -74,7 +74,7 @@ export default function HeaderLinks(props) {
         }}
         me="10px"
         borderRadius="30px"
-      />
+      /> */}
       <Flex
         bg={ethBg}
         display={secondary ? 'flex' : 'none'}
@@ -109,7 +109,7 @@ export default function HeaderLinks(props) {
           </Text>
         </Text>
       </Flex>
-      <SidebarResponsive routes={routes} />
+      <SidebarResponsive routes={homeRoutes} />
       <Menu>
         <MenuButton p="0px">
           <Icon

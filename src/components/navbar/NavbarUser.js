@@ -87,7 +87,7 @@ export default function UserNavbar(props) {
 				}}
 				alignItems={{ xl: 'center' }}
 				mb={gap}>
-				<Box mb={{ sm: '8px', md: '0px' }}>
+				{/* <Box mb={{ sm: '8px', md: '0px' }}>
 					<Breadcrumb>
 						<BreadcrumbItem color={secondaryText} fontSize='sm' mb='5px'>
 							<BreadcrumbLink href='#' color={secondaryText}>
@@ -101,7 +101,7 @@ export default function UserNavbar(props) {
 							</BreadcrumbLink>
 						</BreadcrumbItem>
 					</Breadcrumb>
-					{/* Here we create navbar brand, based on route name */}
+					{/* Here we create navbar brand, based on route name
 					<Link
 						color={mainText}
 						href='#'
@@ -120,7 +120,7 @@ export default function UserNavbar(props) {
 						}}>
 						{brandText}
 					</Link>
-				</Box>
+				</Box> */}
 				<Box ms='auto' w={{ sm: '100%', md: 'unset' }}>
 					<UserNavbarLinks
 						onOpen={props.onOpen}
