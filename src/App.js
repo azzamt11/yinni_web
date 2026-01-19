@@ -113,7 +113,7 @@ export default function Main() {
       <Routes>
         <Route path="auth/*" element={<AuthLayout />} />
         <Route path="home/*" element={<HomeLayout />} />
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/auth" replace />} />
       </Routes>
     </ChakraProvider>
   );
