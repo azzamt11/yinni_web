@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import {
   Box, Flex, Text, IconButton, Input, InputGroup, 
   InputRightElement, useToast, VStack, Spinner, SimpleGrid,
-  Menu, MenuButton, MenuList, MenuItem, MenuDivider
+  Menu, MenuButton, MenuList, MenuItem, MenuDivider,
+  Button
 } from "@chakra-ui/react";
 import { MdMoreVert, MdPerson, MdLogout } from "react-icons/md";
 import { IoSend } from "react-icons/io5";
@@ -14,6 +15,7 @@ import Card from "components/card/Card";
 import NFT from "components/card/NFT";
 import ProfileBanner from "views/home/default/components/ProfileBanner";
 import Upload from "views/home/default/components/Upload";
+import PaymentMethodCard from "views/home/default/components/PaymentMethodCard";
 
 // Assets
 import avatar from "assets/img/avatars/avatar4.png";
@@ -31,6 +33,11 @@ export default function ChatOverview() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [savedProducts, setSavedProducts] = useState(null);
+  const [chosenItem, setChosenItem] = useState(null);
+
+  const images = {
+    "MASTERCARD": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
+  }
   
   const toast = useToast();
   const messagesEndRef = useRef(null);
@@ -84,8 +91,10 @@ export default function ChatOverview() {
       const json = await res.json();
       setMessages(prev => [...prev, json]);
 
-      if (json.type === "FIND_ITEM") {
+      if (json.type === "FIND_ITEM" && json.data.products != null) {
         setSavedProducts(json.data.products);
+      } else if (json.type === "SELECT_OPTION") {
+        setChosenItem(savedProducts[json.data.option -1])
       }
     } catch (err) {
       toast({ title: "Error", description: err.message, status: "error" });
@@ -98,8 +107,8 @@ export default function ChatOverview() {
     if (msg.type === 'USER') {
       return (
         <Flex key={index} w="100%" justify="flex-end">
-          <Box bg="brand.500" color="white" px="4" py="1" borderRadius="20px 20px 0 20px" boxShadow="md" maxW="100%">
-            <Text fontSize="md">{msg.content}</Text>
+          <Box bg="brand.500" color="white" px="4" py="2" borderRadius="20px 20px 0 20px" boxShadow="md" maxW="100%">
+            <Text fontSize="17px">{msg.content}</Text>
           </Box>
         </Flex>
       );
@@ -111,16 +120,41 @@ export default function ChatOverview() {
       case "SELECT_OPTION":
         const item = savedProducts ? savedProducts[msg.data.option - 1] : null;
         return item ? (
-          <NFT key={index} name={item.title} author={item.category} image={item.primary_image || Nft3} currentbid={`$ ${item.selling_price}`} download="#" />
+          <NFT key={index} name={item.title} author={item.category} images={item.images} image={item.primary_image || Nft3} currentbid={`$ ${item.selling_price}`} download="#" />
         ) : <Text key={index} color="gray.500">Selection data lost. Please search again.</Text>;
       case "MAKE_PAYMENT":
-        return (
-          <Card key={index} p='20px'>
-            <Text fontWeight="bold" color="green.600">Payment Initiated</Text>
-            <Text fontSize="sm">Method: {msg.data.message}</Text>
-            <Text fontSize="sm">Status: {msg.data.status}</Text>
-          </Card>
-        );
+        {
+          if(chosenItem != null) {
+            return (
+              <Card p='0px'>
+                <Flex
+                  align={{ sm: "flex-start", lg: "center" }}
+                  justify='space-between'
+                  w='100%'
+                  px='22px'
+                  py='18px'>
+                  <Text color={'brand.700'} fontSize='xl' fontWeight='600'>
+                    Payment Method
+                  </Text>
+                  <Button variant='action'>Proceed</Button>
+                </Flex>
+
+                <PaymentMethodCard
+                  name={msg.data.message}
+                  author={msg.data.status}
+                  date={Date.now}
+                  image={`http://76.13.17.200:8004${msg.data.image}`}
+                  price={chosenItem.selling_price}
+                />
+              </Card>
+            );
+          } else {
+            return <Card key={index} p='20px'>
+              <Text fontWeight="bold" color="green.600">Error</Text>
+              <Text fontSize="sm">You are not yet chosing product</Text>
+            </Card>
+          }
+        }
       default:
         return <Text key={index} color="gray.400">Unknown response type.</Text>;
     }

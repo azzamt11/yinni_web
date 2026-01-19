@@ -8,7 +8,7 @@ import Navbar from 'components/navbar/NavbarUser.js';
 import Sidebar from 'components/sidebar/Sidebar.js';
 import { SidebarContext } from 'contexts/SidebarContext';
 import { isAuthenticated, hasRole } from '../../Auth';
-import homeRoutes from 'homeRoutes.js';
+import routes from 'routes.js';
 
 // Custom Chakra theme
 export default function HomeLayout(props) {
@@ -128,9 +128,9 @@ export default function HomeLayout(props) {
   // 7. Use useEffect to run the functions whenever the location changes
   useEffect(() => {
     const currentPath = location.pathname;
-    setActiveRouteName(getActiveRoute(homeRoutes, currentPath));
-    setActiveNavbarState(getActiveNavbar(homeRoutes, currentPath));
-    setActiveNavbarText(getActiveNavbarText(homeRoutes, currentPath));
+    setActiveRouteName(getActiveRoute(routes, currentPath));
+    setActiveNavbarState(getActiveNavbar(routes, currentPath));
+    setActiveNavbarText(getActiveNavbarText(routes, currentPath));
   }, [location.pathname]); // Re-run this effect whenever location.pathname changes
   
   document.documentElement.dir = 'ltr';
@@ -145,7 +145,7 @@ export default function HomeLayout(props) {
             setToggleSidebar,
           }}
         >
-          <Sidebar routes={homeRoutes} display="none" {...rest} />
+          <Sidebar routes={routes} display="none" {...rest} />
           <Box
             float="right"
             minHeight="100vh"
@@ -184,7 +184,7 @@ export default function HomeLayout(props) {
                 pt="50px"
               >
                 <Routes>
-                  {getRoutes(homeRoutes)}
+                  {getRoutes(routes)}
                   <Route
                     path="/"
                     element={<Navigate to="/home/default" replace />}

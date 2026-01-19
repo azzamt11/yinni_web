@@ -2,25 +2,16 @@ import React from 'react';
 
 import { Icon } from '@chakra-ui/react';
 import {
-  MdBarChart,
-  MdPerson,
   MdHome,
   MdLock,
-  MdOutlineShoppingCart,
-  MdSell,
-  MdVideocam,
-  MdShoppingBasket,
-  MdShoppingCart,
 } from 'react-icons/md';
 
 import Default from 'views/home/default';
-import Contents from 'views/home/contents';
 
 // Auth Imports
 import SignInCentered from 'views/auth/signIn';
-import HomeProduct from 'views/home/product';
 
-const homeRoutes = [
+const routes = [
   {
     name: 'Home',
     layout: '/home',
@@ -36,13 +27,6 @@ const homeRoutes = [
   //   component: <HomeProduct />,
   // },
   {
-    name: 'Konten',
-    layout: '/user',
-    icon: <Icon as={MdVideocam} width="20px" height="20px" color="inherit" />,
-    path: '/content',
-    component: <Contents />,
-  },
-  {
     name: 'Sign In',
     layout: '/auth',
     path: '/sign-in',
@@ -51,4 +35,4 @@ const homeRoutes = [
   },
 ];
 
-export default homeRoutes;
+export default routes;

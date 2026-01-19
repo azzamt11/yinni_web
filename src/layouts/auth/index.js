@@ -6,7 +6,7 @@ import { Box } from '@chakra-ui/react';
 
 // Layout components
 import { SidebarContext } from 'contexts/SidebarContext';
-import homeRoutes from 'homeRoutes';
+import routes from 'routes';
 
 // Custom Chakra theme
 export default function Auth() {
@@ -55,7 +55,7 @@ export default function Auth() {
           {getRoute() ? (
             <Box mx="auto" minH="100vh">
               <Routes>
-                {getRoutes(homeRoutes)}
+                {getRoutes(routes)}
                 <Route
                   path="/"
                   element={<Navigate to="/auth/sign-in/default" replace />}

@@ -1,6 +1,6 @@
 // Chakra imports
 import {
-  AvatarGroup,
+  AspectRatio,
   Avatar,
   Box,
   Button,
@@ -10,6 +10,7 @@ import {
   Link,
   Text,
   useColorModeValue,
+  SimpleGrid,
 } from "@chakra-ui/react";
 // Custom components
 import Card from "components/card/Card.js";
@@ -28,7 +29,7 @@ const formatDateToIndonesian = (isoDateString) => {
     }).format(date);
   } catch (error) {
     console.error("Error formatting date:", error);
-    return isoDateString; // Fallback to original string on error
+    return isoDateString;
   }
 };
 
@@ -38,7 +39,7 @@ const formatNumberString = (numberString) => {
 
   // 2. Check if the conversion resulted in a valid number
   if (isNaN(numberValue)) {
-    return numberString; // Return original string if it wasn't a valid number
+    return numberString;
   }
 
   // 3. Use Intl.NumberFormat for robust localization
@@ -51,22 +52,48 @@ const formatNumberString = (numberString) => {
 };
 
 export default function NFT(props) {
-  const { image, name, author, date, currentbid, onEdit, onDelete} = props;
-  const [like, setLike] = useState(false);
+  const { image, name, author, date, currentbid, images, onEdit, onDelete } = props;
   const textColor = useColorModeValue("navy.700", "white");
   const textColorBid = useColorModeValue("brand.500", "white");
+
+  // Determine if we should show a grid of images or a single image
+  // 'images' is expected to be an array. If empty, we fallback to 'image' prop.
+  const hasMultipleImages = images && images.length > 0;
+
   return (
     <Card p="20px" minH="330px">
       <Flex direction="column" h="100%">
-        <Box w="100%" h="250px" mb="20px">
-          <Image
-            src={image}
-            w="100%"
-            h="100%"
-            borderRadius="20px"
-            objectFit="cover"
-          />
+        {/* IMAGE CONTAINER */}
+        <Box w="100%" mb="20px">
+          {hasMultipleImages ? (
+            <SimpleGrid
+              columns={{ base: 1, md: 1, lg: 2, xl: 3 }}
+              spacing="10px"
+            >
+              {(images.length > 3 ? images.slice(0, 3) : images).map((img, index) => (
+                <AspectRatio key={index} ratio={1} w="100%">
+                  <Image
+                    src={img}
+                    borderRadius="15px"
+                    objectFit="cover"
+                    alt={name}
+                  />
+                </AspectRatio>
+              ))}
+            </SimpleGrid>
+          ) : (
+            <AspectRatio ratio={1} w="100%">
+              <Image
+                src={image}
+                borderRadius="20px"
+                objectFit="cover"
+                alt={name}
+              />
+            </AspectRatio>
+          )}
         </Box>
+
+        {/* CONTENT SECTION */}
         <Flex flexDirection='column' justify='space-between' h='25%'>
           <Flex
             justify='space-between'
@@ -81,14 +108,7 @@ export default function NFT(props) {
             <Flex direction='column'>
               <Text
                 color={textColor}
-                fontSize={{
-                  base: "xl",
-                  md: "lg",
-                  lg: "lg",
-                  xl: "lg",
-                  "2xl": "md",
-                  "3xl": "lg",
-                }}
+                fontSize={{ base: "xl", md: "lg", "2xl": "md", "3xl": "lg" }}
                 mb='5px'
                 fontWeight='900'
                 me='14px'>
@@ -96,29 +116,21 @@ export default function NFT(props) {
               </Text>
               <Text
                 color={textColor}
-                fontSize={{
-                  base: "sm",
-                  md: "sm",
-                  lg: "sm",
-                  xl: "sm",
-                  "2xl": "sm",
-                  "3xl": "sm",
-                }}
+                fontSize="sm"
                 mb='5px'
                 me='14px'>
                 {formatDateToIndonesian(date)}
               </Text>
               <Text
                 color='secondaryGray.600'
-                fontSize={{
-                  base: "sm",
-                }}
+                fontSize="sm"
                 fontWeight='400'
                 me='14px'>
                 {author}
               </Text>
             </Flex>
           </Flex>
+
           <Flex
             align='start'
             justify='space-between'
@@ -133,31 +145,6 @@ export default function NFT(props) {
             <Text fontWeight='500' fontSize='15px' color={textColorBid}>
               {`$ ${formatNumberString(currentbid)}`}
             </Text>
-            <Flex align='center' direction='row'>
-              {/* <Button
-                variant='darkBrand'
-                color='white'
-                fontSize='sm'
-                fontWeight='500'
-                borderRadius='70px'
-                px='15px'
-                mr='5px'
-                onClick={onEdit}
-                py='5px'>
-                Edit
-              </Button>
-              <Button
-                variant='darkRed'
-                color='white'
-                fontSize='sm'
-                fontWeight='500'
-                borderRadius='70px'
-                px='15px'
-                onClick={onDelete}
-                py='5px'>
-                Hapus
-              </Button> */}
-            </Flex>
           </Flex>
         </Flex>
       </Flex>

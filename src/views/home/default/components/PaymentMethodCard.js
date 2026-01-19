@@ -4,7 +4,7 @@ import { Flex, Icon, Image, Text, useColorModeValue } from "@chakra-ui/react";
 // Custom components
 import Card from "components/card/Card.js";
 // Assets
-import { FaEthereum } from "react-icons/fa";
+import { FaDollarSign, FaEthereum, FaMoneyBill } from "react-icons/fa";
 
 export default function NFT(props) {
   const { image, name, author, date, price } = props;
@@ -25,7 +25,14 @@ export default function NFT(props) {
       transition='0.2s linear'>
       <Flex direction={{ base: "column" }} justify='center'>
         <Flex position='relative' align='center'>
-          <Image src={image} w='66px' h='66px' borderRadius='20px' me='16px' />
+          <Image 
+            src={image} 
+            w='66px' 
+            h='66px' 
+            borderRadius='20px' 
+            me='16px' 
+            objectFit='contain' // This is the key property
+          />
           <Flex
             direction='column'
             w={{ base: "70%", md: "100%" }}
@@ -53,7 +60,7 @@ export default function NFT(props) {
           <Flex
             me={{ base: "4px", md: "32px", xl: "10px", "3xl": "32px" }}
             align='center'>
-            <Icon as={FaEthereum} color={textColor} width='9px' me='7px' />
+            <Icon as={FaDollarSign} color={textColor} width='9px' me='7px' />
             <Text fontWeight='700' fontSize='md' color={textColor}>
               {price}
             </Text>
