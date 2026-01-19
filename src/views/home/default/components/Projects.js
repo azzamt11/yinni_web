@@ -1,15 +1,14 @@
 // Chakra imports
-import { Text, useColorModeValue } from "@chakra-ui/react";
-// Assets
-import Project1 from "assets/img/profile/Project1.png";
-import Project2 from "assets/img/profile/Project2.png";
-import Project3 from "assets/img/profile/Project3.png";
+import { Text, useColorModeValue, SimpleGrid } from "@chakra-ui/react";
 // Custom components
 import Card from "components/card/Card.js";
 import React from "react";
-import Project from "views/admin/profile/components/Project";
+import Project from "views/home/default/components/Project";
 
 export default function Projects(props) {
+  // Destructure data from props
+  const { data } = props;
+
   // Chakra Color Mode
   const textColorPrimary = useColorModeValue("secondaryGray.900", "white");
   const textColorSecondary = "gray.400";
@@ -17,6 +16,7 @@ export default function Projects(props) {
     "0px 18px 40px rgba(112, 144, 176, 0.12)",
     "unset"
   );
+
   return (
     <Card mb={{ base: "0px", "2xl": "20px" }}>
       <Text
@@ -25,35 +25,30 @@ export default function Projects(props) {
         fontSize='2xl'
         mt='10px'
         mb='4px'>
-        All projects
+        Products
       </Text>
+
       <Text color={textColorSecondary} fontSize='md' me='26px' mb='40px'>
-        Here you can find more details about your projects. Keep you user
-        engaged by providing meaningful information.
+        {data && data.length > 0 
+          ? "These are products based on your prompt" 
+          : "No results match the prompt"}
       </Text>
-      <Project
-        boxShadow={cardShadow}
-        mb='20px'
-        image={Project1}
-        ranking='1'
-        link='#'
-        title='Technology behind the Blockchain'
-      />
-      <Project
-        boxShadow={cardShadow}
-        mb='20px'
-        image={Project2}
-        ranking='2'
-        link='#'
-        title='Greatest way to a good Economy'
-      />
-      <Project
-        boxShadow={cardShadow}
-        image={Project3}
-        ranking='3'
-        link='#'
-        title='Most essential tips for Burnout'
-      />
+
+      <SimpleGrid columns={{ base: 1, lg: 1, xl: 2 }} spacing='25px'>
+        {data && data.map((v, index) => (
+          <Project
+            key={index}
+            boxShadow={cardShadow}
+            // FIXED: Map 'primary_image' from JSON to the 'image' prop
+            image={v.primary_image} 
+            // FIXED: Map 'average_rating' or 'brand' if 'ranking' is missing in JSON
+            ranking={v.brand || v.average_rating} 
+            link={v.link || "#"}
+            title={v.title}
+            detail={v.seller}
+          />
+        ))}
+      </SimpleGrid>
     </Card>
   );
 }

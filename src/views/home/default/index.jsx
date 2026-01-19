@@ -1,601 +1,270 @@
-import {useState, useEffect} from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Box, Grid , Flex, Text, Link, SimpleGrid, Button, useToast} from "@chakra-ui/react";
+import { useState, useEffect, useRef } from 'react';
+import {
+  Box,
+  Flex,
+  Text,
+  IconButton,
+  Input,
+  InputGroup,
+  InputRightElement,
+  useToast,
+  VStack,
+  Spinner
+} from "@chakra-ui/react";
+import { IoSend } from "react-icons/io5";
 
-// Custom components
-import Banner from "views/home/default/components/Banner";
-import ProfileBanner from "views/home/default/components/ProfileBanner";
-import Storage from "views/home/default/components/Storage";
-import Upload from "views/home/default/components/Upload";
-import General from "views/home/default/components/General";
-import Notifications from "views/home/default/components/Notifications";
+// Components
 import Projects from "views/home/default/components/Projects";
+import Card from "components/card/Card";
+import NFT from "components/card/NFT";
 
 // Assets
 import avatar from "assets/img/avatars/avatar4.png";
-import React from "react";
-
-import TableTopCreators from "views/admin/marketplace/components/TableTopCreators";
-import HistoryItem from "views/admin/marketplace/components/HistoryItem";
-import NFT from "components/card/NFT";
-import Card from "components/card/Card.js";
 import banner from "assets/img/nfts/NftBanner1.png";
-
-// Assets
-import Nft1 from "assets/img/nfts/Nft1.png";
-import Nft2 from "assets/img/nfts/Nft2.png";
 import Nft3 from "assets/img/nfts/Nft3.png";
-import Nft4 from "assets/img/nfts/Nft4.png";
-import Nft5 from "assets/img/nfts/Nft5.png";
-import Nft6 from "assets/img/nfts/Nft6.png";
-import Avatar1 from "assets/img/avatars/avatar1.png";
-import Avatar2 from "assets/img/avatars/avatar2.png";
-import Avatar3 from "assets/img/avatars/avatar3.png";
-import Avatar4 from "assets/img/avatars/avatar4.png";
-import tableDataTopCreators from "views/admin/marketplace/variables/tableDataTopCreators.json";
-import { tableColumnsTopCreators } from "views/admin/marketplace/variables/tableColumnsTopCreators";
-import HomeNFT from "components/card/HomeNFT";
 
-import {Navigate} from 'react-router-dom';
-import { isAuthenticated, hasRole } from "../../../Auth";
-
-
-export default function Overview() {
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8088";
-  const [loading, setLoading] = useState(false);
-  const [items, setItems] = useState([]);
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [page, setPage] = useState(1);
-  const toast = useToast();
-
-  const navigate = useNavigate();
-  const location = useLocation();
+export default function ChatOverview() {
+  const API_ENDPOINT = "http://76.13.17.200:8003/v1/prompt";
   
-  const textColor = "secondaryGray.900";
-  const textColorBrand = "brand.500";
+  const [userInput, setUserInput] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [savedProducts, setSavedProducts] = useState(null);
+  
+  const toast = useToast();
+  const messagesEndRef = useRef(null);
 
-  const ENDPOINTS = {
-    list: `${API_BASE_URL}/package/all`,
+  // Auto-scroll logic
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  async function fetchPackages(p = 1) {
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, loading]);
+
+  const handleSendMessage = async () => {
+    if (!userInput.trim()) return;
+
+    const currentPrompt = userInput;
+    setUserInput(""); // Clear input immediately
+    
+    // Append user message
+    setMessages(prev => [...prev, { type: 'USER', content: currentPrompt }]);
+    
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: String(p) });
-      if (categoryFilter) params.set("category", categoryFilter);
-      const res = await fetch(`${ENDPOINTS.list}?${params.toString()}`);
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      const json = await res.json();
-      const paged = json.data || {};
-      console.log("--- RAW JSON RESPONSE ---");
-      console.log(json);
-      console.log("-------------------------");
-      
-      // You can use JSON.stringify for cleaner logging of specific objects
-      console.log(`PAGED OBJECT: ${JSON.stringify(paged)}`);
-      setItems(paged.items || []);
-      setPage(paged.page || p);
-    } catch (err) {
-      console.error("fetchPackages:", err);
-      toast({
-        title: "Error",
-        description: `Gagal Memuat Data: ${err.message}`,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
+      const res = await fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjozLCJleHAiOjE3Njg4MDcwMTIsImlhdCI6MTc2ODgwMzQxMn0.7O0tXa8EMA8Xyngt4NUjWrVPqu2WGEqtXOiUWCcZupg" // Use your actual token here
+        },
+        body: JSON.stringify({ prompt: currentPrompt })
       });
-      setItems([]);
+
+      if (!res.ok) throw new Error(`Server Error: ${res.status}`);
+      
+      const json = await res.json();
+      setMessages(prev => [...prev, json]);
+
+      // Cache data for SELECT_OPTION logic
+      if (json.type === "FIND_ITEM") {
+        setSavedProducts(json.data.products);
+      }
+    } catch (err) {
+      toast({ title: "Error", description: err.message, status: "error" });
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  useEffect(() => {
-    fetchPackages(1);
-    window.scrollTo(0, 0);
-  }, []);
+  const renderMessageContent = (msg, index) => {
+    if (msg.type === 'USER') {
+      return (
+        <Flex key={index} w="100%" justify="flex-end">
+          <Box 
+            bg="brand.500" 
+            color="white" 
+            px="4" 
+            py="2" 
+            borderRadius="20px 20px 0 20px" 
+            boxShadow="md"
+            maxW="100%"
+          >
+            <Text fontSize="md">{msg.content}</Text>
+          </Box>
+        </Flex>
+      );
+    }
+
+    <Flex
+      mt='45px'
+      mb='20px'
+      justifyContent='space-between'
+      direction={{ base: "column", md: "row" }}
+      align={{ base: "start", md: "center" }}>
+      <Text color={textColor} fontSize='2xl' ms='24px' fontWeight='700'>
+        Pilihan Untukmu
+      </Text>
+      <Flex
+        align='center'
+        me='20px'
+        ms={{ base: "24px", md: "0px" }}
+        mt={{ base: "20px", md: "0px" }}>
+        <Link
+          color={textColorBrand}
+          fontWeight='500'
+          me={{ base: "34px", md: "44px" }}
+          to='#all'>
+          Lihat Semua
+        </Link>
+      </Flex>
+    </Flex>
+    {!loading && items.length === 0 ? (
+    <Flex 
+      justifyContent="center" 
+      alignItems="center" 
+      py={12}
+      minH="150px"
+      w="100%"
+    >
+      <Text color="gray.500" fontSize="lg">
+        Tidak Ada Paket
+      </Text>
+    </Flex>
+  ) : items.length != 0 ? (
+    <SimpleGrid spacing="20px" columns={{ base: 1, sm: 2, md: 3, lg: 4}}>
+      {items.map((pkg) => (
+        <Box key={pkg.ID} w="100%" mx="auto" minWidth={"200px"}>
+          <HomeNFT
+            name={pkg.name}
+            author={pkg.category}
+            image={pkg.image ? `${API_BASE_URL}${pkg.image}` : Nft3}
+            currentbid={pkg.discountedPrice ? `Rp ${pkg.discountedPrice}` : `Rp ${pkg.originalPrice}`}
+            download={pkg.ID}
+            date={pkg.date}
+            onBuy={() => {
+              if (!isAuthenticated()) {
+                navigate("/auth/sign-in", {
+                  replace: true,
+                  state: { from: location.pathname }
+                });
+              } else {
+                navigate("/detail/description", {
+                  replace: true,
+                  state: { checkoutPackage: pkg }
+                })
+              }
+            }}
+
+          />
+        </Box>
+      ))}
+    </SimpleGrid>
+  ) : <Flex 
+      justifyContent="center" 
+      alignItems="center" 
+      py={12}
+      minH="150px"
+      w="100%"
+    >
+      <Text color="gray.500" fontSize="lg">
+        Tidak Dapat Memuat Data
+      </Text>
+    </Flex>
+
+    switch (msg.type) {
+      case "FIND_ITEM":
+        return <Projects 
+        key={index} 
+        data={msg.data.products} 
+        banner={banner} 
+        avatar={avatar}
+      />;
+      
+      case "SELECT_OPTION":
+        const item = savedProducts ? savedProducts[msg.data.option - 1] : null;
+        return item ? (
+          <NFT key={index} name={item.title} author={item.category} image={item.primary_image || Nft3} currentbid={`Rp ${item.selling_price}`} download="#" />
+        ) : <Text key={index} color="gray.500">Selection data lost. Please search again.</Text>;
+
+      case "MAKE_PAYMENT":
+        return (
+          <Card key={index} p='20px'>
+            <Text fontWeight="bold" color="green.600">Payment Initiated</Text>
+            <Text fontSize="sm">Method: {msg.data.message}</Text>
+            <Text fontSize="sm">Status: {msg.data.status}</Text>
+          </Card>
+        );
+
+      default:
+        return <Text key={index} color="gray.400">Response received, but format is unknown.</Text>;
+    }
+  };
 
   return (
-    <Box pt={{ base: "130px", md: "80px", xl: "80px" }}>
-      {/* Main Fields */}
-      <Grid
-        templateColumns="1fr" 
-        templateRows="repeat(1, 1fr)" 
-        gap={{ base: "20px", xl: "20px" }}
-        marginBottom={"25px"}
-        // --- ADDED FIXES FOR MOBILE OVERFLOW ---
-        width="100%"
-        maxWidth="100%"
-        overflowX="hidden" // Hides any child content that tries to escape horizontally
-        // ----------------------------------------
+    <Box pt={{ base: "130px", md: "80px" }} pb="120px" minH="100vh">
+      {/* Conversation Thread */}
+      <VStack spacing={8} align="stretch" w="100%" maxW="800px" mx="auto" px="4">
+        {messages.map((msg, index) => renderMessageContent(msg, index))}
+        
+        {loading && (
+          <Flex align="center" gap={3}>
+            <Spinner size="sm" color="brand.500" />
+            <Text fontSize="sm" color="gray.500" fontStyle="italic">Analyzing products...</Text>
+          </Flex>
+        )}
+        
+        <div ref={messagesEndRef} />
+      </VStack>
+
+      {/* ChatGPT Style Floating Input Container */}
+      <Box 
+        position="fixed" 
+        bottom="0" 
+        // This ensures the input starts after the sidebar on desktop
+        left={{ base: "0", xl: "290px" }} 
+        right="0" // Spans all the way to the right edge
+        bg="transparent" 
+        pointerEvents="none"
+        zIndex="10" // Ensures it stays above other elements
       >
-        <Flex
-          flexDirection='column'
-          gridArea={{ xl: "1 / 1 / 2 / 3", "2xl": "1 / 1 / 2 / 2" }}
-          w="100%"
-          maxW="100%"
-          overflow="hidden"       // important
+        <Box 
+          w="100%" 
+          px={{ base: "20px", md: "30px" }} // Standard horizontal padding
+          pb="30px" // Space from the very bottom
+          pt="4"
+          pointerEvents="auto"
         >
-          <Banner/>
-        </Flex>
-      </Grid>
-      <Grid marginBottom={"25px"}>
-        <Flex
-          flexDirection='column'
-          gridArea={{ xl: "1 / 1 / 2 / 3", "2xl": "1 / 1 / 2 / 2" }}>
-          <Flex direction='column'>
-            <Flex
-              mt='45px'
-              mb='20px'
-              justifyContent='space-between'
-              direction={{ base: "column", md: "row" }}
-              align={{ base: "start", md: "center" }}>
-              <Text color={textColor} fontSize='2xl' ms='24px' fontWeight='700'>
-                Paket Terbaru
-              </Text>
-              <Flex
-                align='center'
-                me='20px'
-                ms={{ base: "24px", md: "0px" }}
-                mt={{ base: "20px", md: "0px" }}>
-                <Link
-                  color={textColorBrand}
-                  fontWeight='500'
-                  me={{ base: "34px", md: "44px" }}
-                  to='#all'>
-                  Lihat Semua
-                </Link>
-              </Flex>
-            </Flex>
-            {!loading && items.length === 0 ? (
-            <Flex 
-              justifyContent="center" 
-              alignItems="center" 
-              py={12}
-              minH="150px"
-              w="100%"
-            >
-              <Text color="gray.500" fontSize="lg">
-                Tidak Ada Paket
-              </Text>
-            </Flex>
-          ) : items.length != 0 ? (
-            <SimpleGrid spacing="20px" columns={{ base: 1, sm: 2, md: 3, lg: 4}}>
-              {items.map((pkg) => (
-                <Box key={pkg.ID} w="100%" mx="auto" minWidth={"200px"}>
-                    <HomeNFT
-                      name={pkg.name}
-                      author={pkg.category}
-                      image={pkg.image ? `${API_BASE_URL}${pkg.image}` : Nft3}
-                      currentbid={pkg.discountedPrice ? `Rp ${pkg.discountedPrice}` : `Rp ${pkg.originalPrice}`}
-                      download={pkg.ID}
-                      date={pkg.date}
-                      onBuy={() => {
-                        if (!isAuthenticated()) {
-                          navigate("/auth/sign-in", {
-                            replace: true,
-                            state: { from: location.pathname }
-                          });
-                        } else {
-                          navigate("/detail/description", {
-                            replace: true,
-                            state: { checkoutPackage: pkg }
-                          })
-                        }
-                      }}
-
-                    />
-                </Box>
-              ))}
-            </SimpleGrid>
-          ) : <Flex 
-              justifyContent="center" 
-              alignItems="center" 
-              py={12}
-              minH="150px"
-              w="100%"
-            >
-              <Text color="gray.500" fontSize="lg">
-                Tidak Dapat Memuat Data
-              </Text>
-            </Flex>}
-          </Flex>
-        </Flex>
-      </Grid>
-      <Grid marginBottom={"25px"}>
-        <Flex
-          flexDirection='column'
-          gridArea={{ xl: "1 / 1 / 2 / 3", "2xl": "1 / 1 / 2 / 2" }}>
-          <Flex direction='column'>
-            <Flex
-              mt='45px'
-              mb='20px'
-              justifyContent='space-between'
-              direction={{ base: "column", md: "row" }}
-              align={{ base: "start", md: "center" }}>
-              <Text color={textColor} fontSize='2xl' ms='24px' fontWeight='700'>
-                Pilihan Untukmu
-              </Text>
-              <Flex
-                align='center'
-                me='20px'
-                ms={{ base: "24px", md: "0px" }}
-                mt={{ base: "20px", md: "0px" }}>
-                <Link
-                  color={textColorBrand}
-                  fontWeight='500'
-                  me={{ base: "34px", md: "44px" }}
-                  to='#all'>
-                  Lihat Semua
-                </Link>
-              </Flex>
-            </Flex>
-            {!loading && items.length === 0 ? (
-            <Flex 
-              justifyContent="center" 
-              alignItems="center" 
-              py={12}
-              minH="150px"
-              w="100%"
-            >
-              <Text color="gray.500" fontSize="lg">
-                Tidak Ada Paket
-              </Text>
-            </Flex>
-          ) : items.length != 0 ? (
-            <SimpleGrid spacing="20px" columns={{ base: 1, sm: 2, md: 3, lg: 4}}>
-              {items.map((pkg) => (
-                <Box key={pkg.ID} w="100%" mx="auto" minWidth={"200px"}>
-                  <HomeNFT
-                    name={pkg.name}
-                    author={pkg.category}
-                    image={pkg.image ? `${API_BASE_URL}${pkg.image}` : Nft3}
-                    currentbid={pkg.discountedPrice ? `Rp ${pkg.discountedPrice}` : `Rp ${pkg.originalPrice}`}
-                    download={pkg.ID}
-                    date={pkg.date}
-                    onBuy={() => {
-                      if (!isAuthenticated()) {
-                        navigate("/auth/sign-in", {
-                          replace: true,
-                          state: { from: location.pathname }
-                        });
-                      } else {
-                        navigate("/detail/description", {
-                          replace: true,
-                          state: { checkoutPackage: pkg }
-                        })
-                      }
-                    }}
-
-                  />
-                </Box>
-              ))}
-            </SimpleGrid>
-          ) : <Flex 
-              justifyContent="center" 
-              alignItems="center" 
-              py={12}
-              minH="150px"
-              w="100%"
-            >
-              <Text color="gray.500" fontSize="lg">
-                Tidak Dapat Memuat Data
-              </Text>
-            </Flex>}
-          </Flex>
-        </Flex>
-      </Grid>
-      {/*<Grid
-        templateColumns={{
-          base: "1fr",
-          lg: "1.34fr 1fr 1.62fr",
-        }}
-        templateRows={{
-          base: "repeat(3, 1fr)",
-          lg: "1fr",
-        }}
-        gap={{ base: "20px", xl: "20px" }}>
-        <ProfileBanner
-          gridArea='1 / 1 / 2 / 2'
-          banner={banner}
-          avatar={avatar}
-          name='Adela Parkson'
-          job='Product Designer'
-          posts='17'
-          followers='9.7k'
-          following='274'
-        />
-        <Storage
-          gridArea={{ base: "2 / 1 / 3 / 2", lg: "1 / 2 / 2 / 3" }}
-          used={25.6}
-          total={50}
-        />
-        <Upload
-          gridArea={{
-            base: "3 / 1 / 4 / 2",
-            lg: "1 / 3 / 2 / 4",
-          }}
-          minH={{ base: "auto", lg: "420px", "2xl": "365px" }}
-          pe='20px'
-          pb={{ base: "100px", lg: "20px" }}
-        />
-      </Grid>
-      <Grid
-        mb='20px'
-        templateColumns={{
-          base: "1fr",
-          lg: "repeat(2, 1fr)",
-          "2xl": "1.34fr 1.62fr 1fr",
-        }}
-        templateRows={{
-          base: "1fr",
-          lg: "repeat(2, 1fr)",
-          "2xl": "1fr",
-        }}
-        gap={{ base: "20px", xl: "20px" }}>
-        <Projects
-          gridArea='1 / 2 / 2 / 2'
-          banner={banner}
-          avatar={avatar}
-          name='Adela Parkson'
-          job='Product Designer'
-          posts='17'
-          followers='9.7k'
-          following='274'
-        />
-        <General
-          gridArea={{ base: "2 / 1 / 3 / 2", lg: "1 / 2 / 2 / 3" }}
-          minH='365px'
-          pe='20px'
-        />
-        <Notifications
-          used={25.6}
-          total={50}
-          gridArea={{
-            base: "3 / 1 / 4 / 2",
-            lg: "2 / 1 / 3 / 3",
-            "2xl": "1 / 3 / 2 / 4",
-          }}
-        />
-      </Grid>
-      <Grid
-        mb='20px'
-        gridTemplateColumns={{ xl: "repeat(3, 1fr)", "2xl": "1fr 0.46fr" }}
-        gap={{ base: "20px", xl: "20px" }}
-        display={{ base: "block", xl: "grid" }}>
-        <Flex
-          flexDirection='column'
-          gridArea={{ xl: "1 / 1 / 2 / 3", "2xl": "1 / 1 / 2 / 2" }}>
-          <Banner />
-          <Flex direction='column'>
-            <Flex
-              mt='45px'
-              mb='20px'
-              justifyContent='space-between'
-              direction={{ base: "column", md: "row" }}
-              align={{ base: "start", md: "center" }}>
-              <Text color={textColor} fontSize='2xl' ms='24px' fontWeight='700'>
-                Trending NFTs
-              </Text>
-              <Flex
-                align='center'
-                me='20px'
-                ms={{ base: "24px", md: "0px" }}
-                mt={{ base: "20px", md: "0px" }}>
-                <Link
-                  color={textColorBrand}
-                  fontWeight='500'
-                  me={{ base: "34px", md: "44px" }}
-                  to='#art'>
-                  Art
-                </Link>
-                <Link
-                  color={textColorBrand}
-                  fontWeight='500'
-                  me={{ base: "34px", md: "44px" }}
-                  to='#music'>
-                  Music
-                </Link>
-                <Link
-                  color={textColorBrand}
-                  fontWeight='500'
-                  me={{ base: "34px", md: "44px" }}
-                  to='#collectibles'>
-                  Collectibles
-                </Link>
-                <Link color={textColorBrand} fontWeight='500' to='#sports'>
-                  Sports
-                </Link>
-              </Flex>
-            </Flex>
-            <SimpleGrid columns={{ base: 1, md: 3 }} gap='20px'>
-              <NFT
-                name='Abstract Colors'
-                author='By Esthera Jackson'
-                bidders={[
-                  Avatar1,
-                  Avatar2,
-                  Avatar3,
-                  Avatar4,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                ]}
-                image={Nft1}
-                currentbid='0.91 ETH'
-                download='#'
+          <InputGroup size="lg">
+            <Input
+              pr="4.5rem"
+              placeholder="Ask for a product (e.g., White clothes for winter)..."
+              bg="white"
+              borderRadius="15px"
+              border="1.5px solid"
+              borderColor="gray.300"
+              _focus={{ borderColor: "brand.500" }}
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              disabled={loading}
+            />
+            <InputRightElement width="4.5rem">
+              <IconButton
+                h="1.75rem"
+                size="sm"
+                variant="ghost"
+                colorScheme="brand"
+                icon={<IoSend />}
+                onClick={handleSendMessage}
+                isLoading={loading}
               />
-              <NFT
-                name='ETH AI Brain'
-                author='By Nick Wilson'
-                bidders={[
-                  Avatar1,
-                  Avatar2,
-                  Avatar3,
-                  Avatar4,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                ]}
-                image={Nft2}
-                currentbid='0.91 ETH'
-                download='#'
-              />
-              <NFT
-                name='Mesh Gradients '
-                author='By Will Smith'
-                bidders={[
-                  Avatar1,
-                  Avatar2,
-                  Avatar3,
-                  Avatar4,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                ]}
-                image={Nft3}
-                currentbid='0.91 ETH'
-                download='#'
-              />
-            </SimpleGrid>
-            <Text
-              mt='45px'
-              mb='36px'
-              color={textColor}
-              fontSize='2xl'
-              ms='24px'
-              fontWeight='700'>
-              Recently Added
-            </Text>
-            <SimpleGrid
-              columns={{ base: 1, md: 3 }}
-              gap='20px'
-              mb={{ base: "20px", xl: "0px" }}>
-              <NFT
-                name='Swipe Circles'
-                author='By Peter Will'
-                bidders={[
-                  Avatar1,
-                  Avatar2,
-                  Avatar3,
-                  Avatar4,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                ]}
-                image={Nft4}
-                currentbid='0.91 ETH'
-                download='#'
-              />
-              <NFT
-                name='Colorful Heaven'
-                author='By Mark Benjamin'
-                bidders={[
-                  Avatar1,
-                  Avatar2,
-                  Avatar3,
-                  Avatar4,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                ]}
-                image={Nft5}
-                currentbid='0.91 ETH'
-                download='#'
-              />
-              <NFT
-                name='3D Cubes Art'
-                author='By Manny Gates'
-                bidders={[
-                  Avatar1,
-                  Avatar2,
-                  Avatar3,
-                  Avatar4,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                  Avatar1,
-                ]}
-                image={Nft6}
-                currentbid='0.91 ETH'
-                download='#'
-              />
-            </SimpleGrid>
-          </Flex>
-        </Flex>
-        <Flex
-          flexDirection='column'
-          gridArea={{ xl: "1 / 3 / 2 / 4", "2xl": "1 / 2 / 2 / 3" }}>
-          <Card px='0px' mb='20px'>
-            <TableTopCreators
-              tableData={tableDataTopCreators}
-              columnsData={tableColumnsTopCreators}
-            />
-          </Card>
-          <Card p='0px'>
-            <Flex
-              align={{ sm: "flex-start", lg: "center" }}
-              justify='space-between'
-              w='100%'
-              px='22px'
-              py='18px'>
-              <Text color={textColor} fontSize='xl' fontWeight='600'>
-                History
-              </Text>
-              <Button variant='action'>See all</Button>
-            </Flex>
-
-            <HistoryItem
-              name='Colorful Heaven'
-              author='By Mark Benjamin'
-              date='30s ago'
-              image={Nft5}
-              price='0.91 ETH'
-            />
-            <HistoryItem
-              name='Abstract Colors'
-              author='By Esthera Jackson'
-              date='58s ago'
-              image={Nft1}
-              price='0.91 ETH'
-            />
-            <HistoryItem
-              name='ETH AI Brain'
-              author='By Nick Wilson'
-              date='1m ago'
-              image={Nft2}
-              price='0.91 ETH'
-            />
-            <HistoryItem
-              name='Swipe Circles'
-              author='By Peter Will'
-              date='1m ago'
-              image={Nft4}
-              price='0.91 ETH'
-            />
-            <HistoryItem
-              name='Mesh Gradients '
-              author='By Will Smith'
-              date='2m ago'
-              image={Nft3}
-              price='0.91 ETH'
-            />
-            <HistoryItem
-              name='3D Cubes Art'
-              author='By Manny Gates'
-              date='3m ago'
-              image={Nft6}
-              price='0.91 ETH'
-            />
-          </Card>
-        </Flex>
-      </Grid>*/}
-      {/* Delete Product */}
+            </InputRightElement>
+          </InputGroup>
+        </Box>
+      </Box>
     </Box>
   );
 }
@@ -1261,4 +930,320 @@ export default function Default() {
     </Box>
   );
 }
-*/
+
+{/* <Grid
+        mb='20px'
+        gridTemplateColumns={{ xl: "repeat(3, 1fr)", "2xl": "1fr 0.46fr" }}
+        gap={{ base: "20px", xl: "20px" }}
+        display={{ base: "block", xl: "grid" }}>
+        <Flex
+          flexDirection='column'
+          gridArea={{ xl: "1 / 1 / 2 / 3", "2xl": "1 / 1 / 2 / 2" }}>
+          <Banner />
+          <Flex direction='column'>
+            <Flex
+              mt='45px'
+              mb='20px'
+              justifyContent='space-between'
+              direction={{ base: "column", md: "row" }}
+              align={{ base: "start", md: "center" }}>
+              <Text color={textColor} fontSize='2xl' ms='24px' fontWeight='700'>
+                Trending NFTs
+              </Text>
+              <Flex
+                align='center'
+                me='20px'
+                ms={{ base: "24px", md: "0px" }}
+                mt={{ base: "20px", md: "0px" }}>
+                <Link
+                  color={textColorBrand}
+                  fontWeight='500'
+                  me={{ base: "34px", md: "44px" }}
+                  to='#art'>
+                  Art
+                </Link>
+                <Link
+                  color={textColorBrand}
+                  fontWeight='500'
+                  me={{ base: "34px", md: "44px" }}
+                  to='#music'>
+                  Music
+                </Link>
+                <Link
+                  color={textColorBrand}
+                  fontWeight='500'
+                  me={{ base: "34px", md: "44px" }}
+                  to='#collectibles'>
+                  Collectibles
+                </Link>
+                <Link color={textColorBrand} fontWeight='500' to='#sports'>
+                  Sports
+                </Link>
+              </Flex>
+            </Flex>
+            <SimpleGrid columns={{ base: 1, md: 3 }} gap='20px'>
+              <NFT
+                name='Abstract Colors'
+                author='By Esthera Jackson'
+                bidders={[
+                  Avatar1,
+                  Avatar2,
+                  Avatar3,
+                  Avatar4,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                ]}
+                image={Nft1}
+                currentbid='0.91 ETH'
+                download='#'
+              />
+              <NFT
+                name='ETH AI Brain'
+                author='By Nick Wilson'
+                bidders={[
+                  Avatar1,
+                  Avatar2,
+                  Avatar3,
+                  Avatar4,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                ]}
+                image={Nft2}
+                currentbid='0.91 ETH'
+                download='#'
+              />
+              <NFT
+                name='Mesh Gradients '
+                author='By Will Smith'
+                bidders={[
+                  Avatar1,
+                  Avatar2,
+                  Avatar3,
+                  Avatar4,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                ]}
+                image={Nft3}
+                currentbid='0.91 ETH'
+                download='#'
+              />
+            </SimpleGrid>
+            <Text
+              mt='45px'
+              mb='36px'
+              color={textColor}
+              fontSize='2xl'
+              ms='24px'
+              fontWeight='700'>
+              Recently Added
+            </Text>
+            <SimpleGrid
+              columns={{ base: 1, md: 3 }}
+              gap='20px'
+              mb={{ base: "20px", xl: "0px" }}>
+              <NFT
+                name='Swipe Circles'
+                author='By Peter Will'
+                bidders={[
+                  Avatar1,
+                  Avatar2,
+                  Avatar3,
+                  Avatar4,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                ]}
+                image={Nft4}
+                currentbid='0.91 ETH'
+                download='#'
+              />
+              <NFT
+                name='Colorful Heaven'
+                author='By Mark Benjamin'
+                bidders={[
+                  Avatar1,
+                  Avatar2,
+                  Avatar3,
+                  Avatar4,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                ]}
+                image={Nft5}
+                currentbid='0.91 ETH'
+                download='#'
+              />
+              <NFT
+                name='3D Cubes Art'
+                author='By Manny Gates'
+                bidders={[
+                  Avatar1,
+                  Avatar2,
+                  Avatar3,
+                  Avatar4,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                  Avatar1,
+                ]}
+                image={Nft6}
+                currentbid='0.91 ETH'
+                download='#'
+              />
+            </SimpleGrid>
+          </Flex>
+        </Flex>
+        <Flex
+          flexDirection='column'
+          gridArea={{ xl: "1 / 3 / 2 / 4", "2xl": "1 / 2 / 2 / 3" }}>
+          <Card px='0px' mb='20px'>
+            <TableTopCreators
+              tableData={tableDataTopCreators}
+              columnsData={tableColumnsTopCreators}
+            />
+          </Card>
+          <Card p='0px'>
+            <Flex
+              align={{ sm: "flex-start", lg: "center" }}
+              justify='space-between'
+              w='100%'
+              px='22px'
+              py='18px'>
+              <Text color={textColor} fontSize='xl' fontWeight='600'>
+                History
+              </Text>
+              <Button variant='action'>See all</Button>
+            </Flex>
+
+            <HistoryItem
+              name='Colorful Heaven'
+              author='By Mark Benjamin'
+              date='30s ago'
+              image={Nft5}
+              price='0.91 ETH'
+            />
+            <HistoryItem
+              name='Abstract Colors'
+              author='By Esthera Jackson'
+              date='58s ago'
+              image={Nft1}
+              price='0.91 ETH'
+            />
+            <HistoryItem
+              name='ETH AI Brain'
+              author='By Nick Wilson'
+              date='1m ago'
+              image={Nft2}
+              price='0.91 ETH'
+            />
+            <HistoryItem
+              name='Swipe Circles'
+              author='By Peter Will'
+              date='1m ago'
+              image={Nft4}
+              price='0.91 ETH'
+            />
+            <HistoryItem
+              name='Mesh Gradients '
+              author='By Will Smith'
+              date='2m ago'
+              image={Nft3}
+              price='0.91 ETH'
+            />
+            <HistoryItem
+              name='3D Cubes Art'
+              author='By Manny Gates'
+              date='3m ago'
+              image={Nft6}
+              price='0.91 ETH'
+            />
+          </Card>
+        </Flex>
+      </Grid> */
+
+
+      {/* } */
+          
+          {/* <Flex
+              mt='45px'
+              mb='20px'
+              justifyContent='space-between'
+              direction={{ base: "column", md: "row" }}
+              align={{ base: "start", md: "center" }}>
+              <Text color={textColor} fontSize='2xl' ms='24px' fontWeight='700'>
+                Paket Terbaru
+              </Text>
+              <Flex
+                align='center'
+                me='20px'
+                ms={{ base: "24px", md: "0px" }}
+                mt={{ base: "20px", md: "0px" }}>
+                <Link
+                  color={textColorBrand}
+                  fontWeight='500'
+                  me={{ base: "34px", md: "44px" }}
+                  to='#all'>
+                  Lihat Semua
+                </Link>
+              </Flex>
+            </Flex>
+            {!loading && items.length === 0 ? (
+            <Flex 
+              justifyContent="center" 
+              alignItems="center" 
+              py={12}
+              minH="150px"
+              w="100%"
+            >
+              <Text color="gray.500" fontSize="lg">
+                Tidak Ada Paket
+              </Text>
+            </Flex>
+          ) : items.length != 0 ? (
+            <SimpleGrid spacing="20px" columns={{ base: 1, sm: 2, md: 3, lg: 4}}>
+              {items.map((pkg) => (
+                <Box key={pkg.ID} w="100%" mx="auto" minWidth={"200px"}>
+                    <HomeNFT
+                      name={pkg.name}
+                      author={pkg.category}
+                      image={pkg.image ? `${API_BASE_URL}${pkg.image}` : Nft3}
+                      currentbid={pkg.discountedPrice ? `Rp ${pkg.discountedPrice}` : `Rp ${pkg.originalPrice}`}
+                      download={pkg.ID}
+                      date={pkg.date}
+                      onBuy={() => {
+                        if (!isAuthenticated()) {
+                          navigate("/auth/sign-in", {
+                            replace: true,
+                            state: { from: location.pathname }
+                          });
+                        } else {
+                          navigate("/detail/description", {
+                            replace: true,
+                            state: { checkoutPackage: pkg }
+                          })
+                        }
+                      }}
+
+                    />
+                </Box>
+              ))}
+            </SimpleGrid>
+          ) : <Flex 
+              justifyContent="center" 
+              alignItems="center" 
+              py={12}
+              minH="150px"
+              w="100%"
+            >
+              <Text color="gray.500" fontSize="lg">
+                Tidak Dapat Memuat Data
+              </Text>
+            </Flex>} */}}}

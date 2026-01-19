@@ -25,14 +25,14 @@ import HomeProduct from 'views/home/product';
 
 const homeRoutes = [
   {
-    name: 'Beranda',
+    name: 'Home',
     layout: '/home',
     icon: <Icon as={MdHome} width="20px" height="20px" color="inherit" />,
     path: '/default',
     component: <Default />,
   },
   {
-    name: 'Produk',
+    name: 'Payment',
     layout: '/home',
     icon: <Icon as={MdSell} width="20px" height="20px" color="inherit" />,
     path: '/products',

@@ -20,15 +20,16 @@ export function SidebarBrand() {
 
   return (
     <Flex align='center' direction='column'>
-      <Image src={logo} w='150px' mb='20px' mt='20px' />
+      <Image src={logo} w='150px' mb='0px' mt='20px' />
       <Flex align='center' direction='row' mb='0px' spacing='10px'>
         <Text
-          fontSize='2lg' 
+          fontSize='22px' 
           fontWeight='bold'
           color='brand.800'
           mr='10px'
+          fontStyle="italic"
           textAlign='center'>
-          YINNI
+          Yinni
         </Text>
         
         {hasRole(["ADMIN", "SUPERADMIN"]) ? (

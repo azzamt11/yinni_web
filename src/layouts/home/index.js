@@ -161,7 +161,7 @@ export default function HomeLayout(props) {
             transitionTimingFunction="linear, linear, ease"
           >
             <Portal>
-              <Box>
+              {/* <Box>
                 <Navbar
                   onOpen={onOpen}
                   logoText={'Yinni Dashboard PRO'}
@@ -172,7 +172,7 @@ export default function HomeLayout(props) {
                   fixed={fixed}
                   {...rest}
                 />
-              </Box>
+              </Box> */}
             </Portal>
 
             {getRoute() ? (
@@ -192,9 +192,6 @@ export default function HomeLayout(props) {
                 </Routes>
               </Box>
             ) : null}
-            <Box>
-              <Footer />
-            </Box>
           </Box>
         </SidebarContext.Provider>
       </Box>

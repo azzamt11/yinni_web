@@ -117,14 +117,14 @@ export default function Main() {
       <Routes>
         <Route path="auth/*" element={<AuthLayout />} />
         <Route path="home/*" element={<HomeLayout />} />
-        <Route
+        {/* <Route
           path="admin/*"
           element={
             <ProtectedRoute roles={["ADMIN", "SUPERADMIN"]}>
               <AdminLayout theme={currentTheme} setTheme={setCurrentTheme} />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="user/*"
           element={

@@ -71,7 +71,7 @@ function SignIn() {
         if(hasRole(["ADMIN", 'SUPERADMIN'])) {
           navigate("/admin", { replace: true });
         } else {
-          navigate("/user/default", { replace: true });
+          navigate("/home/default", { replace: true });
         }
     } catch (err) {
       console.error("Login error", err);
