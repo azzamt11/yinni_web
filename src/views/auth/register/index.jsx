@@ -177,6 +177,8 @@ function SignUp() { // Renamed from SignIn to SignUp
                 isRequired={true}
                 variant='auth'
                 fontSize='sm'
+                color="secondaryGrey.800"
+                borderColor='gray.400'
                 textColor={"black"}
                 placeholder='Your preferred name'
                 mb='24px'
@@ -201,6 +203,8 @@ function SignUp() { // Renamed from SignIn to SignUp
                 fontSize='sm'
                 textColor={"black"}
                 type='email'
+                color="secondaryGrey.800"
+                borderColor='gray.400'
                 placeholder='mail@example.com' 
                 mb='24px'
                 fontWeight='500'
@@ -223,6 +227,8 @@ function SignUp() { // Renamed from SignIn to SignUp
                   fontSize='sm'
                   placeholder='Min. 8 characters'
                   size='lg'
+                  color="secondaryGrey.800"
+                  borderColor='gray.400'
                   type={showPassword ? "text" : "password"}
                   variant='auth'
                   onChange={(e) => setPassword(e.target.value)}
@@ -252,6 +258,8 @@ function SignUp() { // Renamed from SignIn to SignUp
                   fontSize='sm'
                   placeholder='Repeat your password'
                   mb='24px'
+                  color="secondaryGrey.800"
+                  borderColor='gray.400'
                   size='lg'
                   type={showConfirm ? "text" : "password"}
                   variant='auth'

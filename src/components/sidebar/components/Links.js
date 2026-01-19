@@ -48,12 +48,7 @@ export function SidebarLinks(props) {
           </>
         );
       } else if (
-        (route.layout === "/admin" && route.path != "/super-admin-dashboard" && hasRole(["ADMIN", "SUPERADMIN"])) ||
-        (route.layout === "/admin" && route.path === "/super-admin-dashboard" && hasRole(["SUPERADMIN"])) ||
-        (route.layout === "/auth" && !hasRole(["USER", "ADMIN", "SUPERADMIN"])) ||
-        (route.layout === "/home") ||
-        (route.layout === "/user" && hasRole(["USER"])) ||
-        (route.layout === "/detail" && hasRole(["USER"]))
+        (route.layout != "/auth") || (route.layout === "/home")
       ) {
         console.log(`Now Authenticated = ${isAuthenticated}`);
         return (
