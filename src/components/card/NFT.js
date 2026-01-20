@@ -15,7 +15,7 @@ import {
 // Custom components
 import Card from "components/card/Card.js";
 // Assets
-import React, { useState } from "react";
+import React from "react";
 
 const formatDateToIndonesian = (isoDateString) => {
   if (!isoDateString) return '';
@@ -52,12 +52,10 @@ const formatNumberString = (numberString) => {
 };
 
 export default function NFT(props) {
-  const { image, name, author, date, currentbid, images, onEdit, onDelete } = props;
+  const { image, name, author, date, currentbid, images, descriptions, onEdit, onDelete } = props;
   const textColor = useColorModeValue("navy.700", "white");
   const textColorBid = useColorModeValue("brand.500", "white");
-
-  // Determine if we should show a grid of images or a single image
-  // 'images' is expected to be an array. If empty, we fallback to 'image' prop.
+ 
   const hasMultipleImages = images && images.length > 0;
 
   return (
@@ -122,12 +120,24 @@ export default function NFT(props) {
                 {formatDateToIndonesian(date)}
               </Text>
               <Text
-                color='secondaryGray.600'
+                color='secondaryGray.800'
                 fontSize="sm"
                 fontWeight='400'
-                me='14px'>
+                me='14px'
+                mb='30px'>
                 {author}
               </Text>
+              {descriptions.map((e, index) => (
+                <Text
+                  key={index}
+                  color='black'
+                  fontSize="14px"
+                  fontWeight='400' // Normal weight for the key
+                  me='14px' // Reduced margin for a cleaner list look
+                >
+                  {e.key} : <Text as="span" fontWeight='700'>{e.value}</Text>
+                </Text>
+              ))}
             </Flex>
           </Flex>
 
@@ -142,7 +152,7 @@ export default function NFT(props) {
               "2xl": "row",
             }}
             mt='25px'>
-            <Text fontWeight='500' fontSize='15px' color={textColorBid}>
+            <Text fontWeight='500' fontSize='15px' color={'brand.800'}>
               {`$ ${formatNumberString(currentbid)}`}
             </Text>
           </Flex>

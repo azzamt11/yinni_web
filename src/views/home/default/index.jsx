@@ -126,7 +126,19 @@ export default function ChatOverview() {
         ? savedProducts[msg.data.option === -1 ? savedProducts.length - 1 : msg.data.option - 1] 
         : null;
         return item ? (
-          <NFT key={index} name={item.title} author={item.category} images={item.images} image={item.primary_image || Nft3} currentbid={`$ ${item.selling_price}`} download="#" />
+          <NFT 
+            key={index} 
+            name={item.title} 
+            author={item.brand} 
+            images={item.images} 
+            image={item.primary_image || Nft3} 
+            descriptions={Object.entries(item.product_details).map(([key, value]) => ({
+              key: key,
+              value: value
+            }))}
+            currentbid={`$ ${item.selling_price}`} 
+            download="#"
+          />
         ) : <Text key={index} color="gray.500">Selection data lost. Please search again.</Text>;
       case "MAKE_PAYMENT":
         {
