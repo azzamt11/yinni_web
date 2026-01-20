@@ -34,10 +34,6 @@ export default function ChatOverview() {
   const [loading, setLoading] = useState(false);
   const [savedProducts, setSavedProducts] = useState(null);
   const [chosenItem, setChosenItem] = useState(null);
-
-  const images = {
-    "MASTERCARD": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Mastercard_2019_logo.svg"
-  }
   
   const toast = useToast();
   const messagesEndRef = useRef(null);
@@ -94,7 +90,9 @@ export default function ChatOverview() {
       if (json.type === "FIND_ITEM" && json.data.products != null) {
         setSavedProducts(json.data.products);
       } else if (json.type === "SELECT_OPTION") {
-        setChosenItem(savedProducts[json.data.option -1])
+        setChosenItem(savedProducts 
+        ? savedProducts[msg.data.option === -1 ? savedProducts.length - 1 : msg.data.option - 1] 
+        : null)
       }
     } catch (err) {
       toast({ title: "Error", description: err.message, status: "error" });
