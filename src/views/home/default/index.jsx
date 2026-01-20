@@ -99,6 +99,7 @@ export default function ChatOverview() {
           ? savedProducts[json.data.option === -1 ? savedProducts.length - 1 : json.data.option - 1] 
           : null);
       }
+      setUserInput("");
     } catch (err) {
       toast({ title: "Error", description: err.message, status: "error" });
     } finally {
