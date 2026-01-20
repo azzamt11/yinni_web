@@ -118,7 +118,9 @@ export default function ChatOverview() {
       case "FIND_ITEM":
         return <Projects key={index} data={msg.data.products} banner={banner} avatar={avatar} />;
       case "SELECT_OPTION":
-        const item = savedProducts ? savedProducts[msg.data.option - 1] : null;
+        const item = savedProducts 
+        ? savedProducts.at(msg.data.option === -1 ? -1 : msg.data.option - 1) 
+        : null;
         return item ? (
           <NFT key={index} name={item.title} author={item.category} images={item.images} image={item.primary_image || Nft3} currentbid={`$ ${item.selling_price}`} download="#" />
         ) : <Text key={index} color="gray.500">Selection data lost. Please search again.</Text>;
