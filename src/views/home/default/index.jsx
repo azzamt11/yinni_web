@@ -51,25 +51,31 @@ export default function ChatOverview() {
     navigate('/auth/sign-in');
   };
 
-  const handleSendMessage = async () => {
+  const handleQuickSearch = () => {
+    const quickPrompt = "A white thick clothes that is suitable for winter";
+    
+    // We update the input state
+    setUserInput(quickPrompt);
+    
+    // We call the send function immediately with the hardcoded string
+    // because state updates (setUserInput) are asynchronous.
+    executeSearch(quickPrompt);
+  };
+
+  const handleSendMessage = () => {
     if (!userInput.trim()) return;
+    executeSearch(userInput);
+    setUserInput("");
+  };
 
-    // 1. Get the current user data to extract the token
-    const userData = getStoredUser();
-    const token = getToken(); // Adjust this if your token key is named differently (e.g., access_token)
-
+  const executeSearch = async (promptValue) => {
+    const token = getToken();
     if (!token) {
-      toast({
-        title: "Authentication Error",
-        description: "Please log in to use the prompt.",
-        status: "warning",
-      });
+      toast({ title: "Authentication Error", status: "warning" });
       return;
     }
 
-    const currentPrompt = userInput;
-    setUserInput("");
-    setMessages(prev => [...prev, { type: 'USER', content: currentPrompt }]);
+    setMessages(prev => [...prev, { type: 'USER', content: promptValue }]);
     setLoading(true);
 
     try {
@@ -77,10 +83,9 @@ export default function ChatOverview() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          // 2. FIXED: Using dynamic template literal for the Bearer token
           "Authorization": `Bearer ${token}` 
         },
-        body: JSON.stringify({ prompt: currentPrompt })
+        body: JSON.stringify({ prompt: promptValue })
       });
 
       if (!res.ok) throw new Error(`Server Error: ${res.status}`);
@@ -91,8 +96,8 @@ export default function ChatOverview() {
         setSavedProducts(json.data.products);
       } else if (json.type === "SELECT_OPTION") {
         setChosenItem(savedProducts 
-        ? savedProducts[json.data.option === -1 ? savedProducts.length - 1 : json.data.option - 1] 
-        : null)
+          ? savedProducts[json.data.option === -1 ? savedProducts.length - 1 : json.data.option - 1] 
+          : null);
       }
     } catch (err) {
       toast({ title: "Error", description: err.message, status: "error" });
@@ -174,7 +179,11 @@ export default function ChatOverview() {
               followers='9.7k'
               following='274'
             />
-            <Upload minH={{ base: "auto", lg: "220px", "2xl": "365px" }} />
+            <Upload 
+              minH={{ base: "auto", lg: "220px", "2xl": "365px" }} 
+              onSearch={handleQuickSearch} 
+              isLoading={loading}
+            />
           </SimpleGrid>
           <Text mt="40px" color="gray.400" fontSize="lg" fontWeight="500">
             How can I help you today?

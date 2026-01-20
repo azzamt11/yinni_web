@@ -107,6 +107,8 @@ export default function Main() {
         <Route path="auth/*" element={<AuthLayout />} />
         <Route path="home/*" element={<HomeLayout />} />
         <Route path="/" element={<Navigate to="auth/sign-in" replace />} />
+        {/* 🚀 ADD THIS: Catch-all route to prevent blank screens on unknown URLs */}
+        <Route path="*" element={<Navigate to="/auth/sign-in" replace />} />
       </Routes>
     </ChakraProvider>
   );
