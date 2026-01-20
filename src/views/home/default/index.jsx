@@ -91,7 +91,7 @@ export default function ChatOverview() {
         setSavedProducts(json.data.products);
       } else if (json.type === "SELECT_OPTION") {
         setChosenItem(savedProducts 
-        ? savedProducts[msg.data.option === -1 ? savedProducts.length - 1 : msg.data.option - 1] 
+        ? savedProducts[json.data.option === -1 ? savedProducts.length - 1 : json.data.option - 1] 
         : null)
       }
     } catch (err) {
